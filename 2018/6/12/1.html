@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			.resultCode {
+				color: #fff;
+				font-family: "微软雅黑";
+				background: #000000;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.5.10/Rx.min.js"></script>
+		<script src="xs.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			function Iik() {
+				var result = [];
+				this.init();
+			}
+
+			Iik.prototype.init = function() {
+				var element = {};
+				this.params = [];
+
+				element.file = document.createElement('input');
+				element.generate = document.createElement("button");
+				element.result = document.createElement("pre");
+				element.filter = document.createElement("div");
+
+				element.file.type = 'file';
+				element.file.name = 'task';
+				element.file.id = 'task';
+
+				element.generate.classList.add('generateCode');
+
+				element.generate.innerHTML = '生成';
+
+				element.result.classList.add('resultCode');
+
+				element.filter.classList.add('filterList');
+
+				document.body.appendChild(element.file);
+				document.body.appendChild(element.generate);
+				document.body.appendChild(element.filter);
+				document.body.appendChild(element.result);
+
+				this.fileChange(element);
+				this.generateCode(element);
+			}
+
+			Iik.prototype.fileChange = function(element) {
+				var reader = new FileReader(),
+					wb, that = this;
+				Rx.Observable.fromEvent(element.file, 'change')
+					.map(event => event.target.files)
+					.filter(res => res.length > 0)
+					.subscribe(res => {
+						reader.readAsBinaryString(res[0]);
+						reader.onload = function(e) {
+							wb = XLSX.read(e.target.result, {
+								type: 'binary'
+							});
+							that.params = Object.assign([], XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));
+							that.generateFilter(element);
+						}
+					})
+			}
+
+			Iik.prototype.generateFilter = function(element) {
+				var str = '';
+				if(this.params.length == 0) {
+					return;
+				}
+				for(var k in this.params[0]) {
+					str += '<div class="box">' +
+						'<input type="checkbox" name="' + k + '" id="cb" value="" />' +
+						'<span class="name">' + k + '</span>' +
+						'--to--' +
+						'<input type="text" data-name="' + k + '" class="change" />' +
+						'</div>'
+				}
+				element.filter.innerHTML = str;
+				this.listenFilter();
+			}
+
+			Iik.prototype.listenFilter = function() {
+				var that = this;
+				var cb = document.querySelectorAll("#cb")
+				for(var i = 0; i < cb.length; i++) {
+					cb[i].addEventListener('change', function(res) {
+						for(var i of that.params) {
+							Object.defineProperty(i, this.name, {
+								enumerable: !this.checked
+							})
+						}
+					})
+				}
+				var ip = document.querySelectorAll('.change');
+				for(var j = 0; j < ip.length; j++) {
+					Rx.Observable.fromEvent(ip[j], 'input')
+						.map(event => event.target)
+						.subscribe(function(res) {
+							var name = res.dataset.name;
+							Rx.Observable.from(that.params)
+								.filter(e => e.hasOwnProperty(name))
+								.subscribe(function(e) {
+									e[res.value] = e[name];
+									delete e[name];
+									res.dataset.name = res.value;
+								})
+						})
+				}
+			}
+
+			Iik.prototype.generateCode = function(element) {
+				var that = this;
+				Rx.Observable.fromEvent(element.generate, 'click')
+					.subscribe(function(res) {
+						var str = '';
+						for(var i = 0; i < that.params.length; i++) {
+							str += '{' + '\n';
+							for(var k in that.params[i]) {
+								if(isNaN(that.params[i][k] / 1)) {
+									str += '\t' + (k + ':' + ' ') + '\'' + that.params[i][k] + '\'' + ',' + '\n';
+								} else {
+									str += '\t' + (k + ':' + ' ') + that.params[i][k] + ',' + '\n';
+								}
+							}
+							str = str.slice(0, -2);
+							str += '\n';
+							if(i != that.params.length - 1) {
+								str += '},' + '\n';
+							} else {
+								str += '}' + '\n';
+							}
+						}
+						element.result.innerHTML = str;
+					})
+			}
+
+			var kk = new Iik();
+		</script>
+	</body>
+
+</html>

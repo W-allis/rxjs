@@ -1,0 +1,2 @@
+{"project_name":"麦穗测试","sms_platform":"MaiHui","url_type":"0","target_url":"http://www.baidu.com","msg_sign":"交通银行","msg_template_content":"且不可填如下字符：【】[]短信中的url链接用{s}代替","send_type":0,"batch_no":"2018-06-12-0001","task_type":"1","send_time":""}
+
