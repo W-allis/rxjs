@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<title>Document</title>
+</head>
+<body>
+	<input type="text" />
+	<button>111</button>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.5.10/Rx.min.js"></script>
+	<script type="text/javascript">
+		
+		var input = Rx.Observable.fromEvent(document.querySelector('input'), 'input');
+//		var stopStream = Rx.Observable.fromEvent(document.querySelector('button'), 'click');
+//		input.takeUntil(stopStream)
+//		  .map(event => event.target.value)
+//		  .subscribe(value => console.log(value));
+		input
+		.pluck('target','value')
+		.distinctUntilChanged()
+		.subscribe(function(res){
+			console.log(res)
+		})
+	</script>
+</body>
+</html>

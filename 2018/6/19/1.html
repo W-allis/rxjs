@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Document</title>
+	</head>
+
+	<body>
+
+	</body>
+
+</html>
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+	<style type="text/css">
+		.foo {
+			width: 100px;
+			height: 100px;
+			border: 1px solid red;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="foo"></div>
+	<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.5.10/Rx.min.js"></script>
+	<script src="http.util.js" type="text/javascript" charset="utf-8"></script>
+	<script src="request.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var obj = {
+			id: 2,
+			type: 'fat'
+		}
+
+		getId(obj)
+			.subscribe(function(res) {
+				console.log(res);
+			}, function(error) {
+				console.log(error);
+			})
+
+		insertNumber(obj)
+			.subscribe(function(res) {
+				console.log(res)
+			}, function(error) {
+				console.log(error);
+			});
+
+		var a = Rx.Observable.fromEvent(document.querySelector(".foo"), 'click')
+			.map(event => event.target)
+			.subscribe(function(res) {
+				res.innerHTML = new Date().toLocaleTimeString();
+			})
+
+		setTimeout(function() {
+			a.unsubscribe();
+		}, 10000)
+
+		var stream$ = Rx.Observable.create((observer) => {
+				observer.next(4);
+
+				setTimeout(function() {
+					observer.error(1);
+				}, 2000)
+
+				setTimeout(function() {
+					observer.complete(); //complete结束对该数据流的观察，类似unsubscribe
+				}, 4000)
+
+				setTimeout(function() {
+					observer.next(3);
+				}, 6000)
+			})
+			.subscribe(function(res) {
+				console.log(res);
+			})
+
+		var promise = new Promise((resolve, reject) => {
+			setTimeout(() => {
+				resolve([1, 2, 3])
+			}, 2000)
+
+		})
+
+		promise.then(data => {
+			console.log('Value', data)
+		})
+
+		Rx.Observable.from([1, 2, 3])
+			.subscribe(function(res) {
+				console.log(res)
+			})
+
+		
+	</script>
+</body>
+
+</html>
